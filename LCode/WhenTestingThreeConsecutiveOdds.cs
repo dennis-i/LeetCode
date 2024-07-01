@@ -1,6 +1,6 @@
 namespace LCode;
 
-public class WhenTestingThreeConsecutiveOdds
+public class WhenTesting_ThreeConsecutiveOdds
 {
 
 
