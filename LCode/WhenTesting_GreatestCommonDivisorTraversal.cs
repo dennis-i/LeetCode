@@ -1,5 +1,6 @@
 namespace LCode;
 
+
 //TODO
 public class WhenTesting_GreatestCommonDivisorTraversal
 {
