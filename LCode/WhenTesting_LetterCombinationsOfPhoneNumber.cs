@@ -6,7 +6,6 @@ public class WhenTesting_LetterCombinationsOfPhoneNumber
     [Theory]
     [InlineData(new string[0], "")]
     [InlineData(new[] { "a", "b", "c" }, "2")]
-    [InlineData(new[] { "a", "b", "c" }, "2345")]
     [InlineData(new[] { "ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf" }, "23")]
     public void TestIt(string[] expected, string digits)
     {
