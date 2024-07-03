@@ -1,5 +1,3 @@
-
-
 namespace LCode;
 
 public class WhenTesting_MyAtoi
