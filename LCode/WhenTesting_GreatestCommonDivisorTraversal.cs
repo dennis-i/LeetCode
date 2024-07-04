@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace LCode;
 
 
@@ -24,9 +26,23 @@ public class WhenTesting_GreatestCommonDivisorTraversal
     [InlineData(5, 10, 15)]
     [InlineData(50, 100, 150)]
     [InlineData(1, 7, 4)]
+    [InlineData(3, 27, 21)]
     public void TestGcd(int expected, int a, int b)
     {
+        Assert.Equal(expected, EGcd(a, b));
         Assert.Equal(expected, Gcd(a, b));
+
+
+        Stopwatch sw = Stopwatch.StartNew();
+        sw.Start();
+        int n2 = Gcd(a, b);
+        Debug.WriteLine("gcd took :{0} ns", sw.Elapsed.Nanoseconds);
+        
+        sw.Restart();
+        int n1 = EGcd(a, b);
+        Debug.WriteLine("egcd took :{0} ns", sw.Elapsed.Nanoseconds);
+
+
     }
 
 
@@ -76,6 +92,32 @@ public class WhenTesting_GreatestCommonDivisorTraversal
         return l;
     }
 
+
+    private static int EGcd(int a, int b)
+    {
+
+        (int, int) CanTileWithSqare(int rectWidth, int rectHeight, int sqLen)
+        {
+            int max = Math.Max(rectWidth, rectHeight);
+            return (sqLen, max % sqLen);
+        }
+
+        while (true)
+        {
+            int min = Math.Min(a, b);
+            var nextRect = CanTileWithSqare(a, b, min);
+            a = nextRect.Item1;
+            b = nextRect.Item2;
+
+            if (a == 0)
+                return b;
+            if (b == 0)
+                return a;
+        }
+
+    }
+
+
     private static int Gcd(int a, int b)
     {
         if (a == b) return a;
@@ -86,7 +128,7 @@ public class WhenTesting_GreatestCommonDivisorTraversal
 
 
         int m = small >> 1;
-        
+
         while (m > 1)
         {
 

@@ -2,10 +2,13 @@ using System.Text;
 
 namespace LCode;
 
+
 public class WhenTesting_AddBinary
 {
 
     [Theory]
+    [InlineData("0", "0", "0")]
+    [InlineData("0", "0000", "00000")]
     [InlineData("100", "11", "1")]
     [InlineData("10101", "1010", "1011")]
     [InlineData("110110", "100", "110010")]
@@ -20,92 +23,66 @@ public class WhenTesting_AddBinary
 
     public string AddBinary(string a, string b)
     {
-        int n1 = BinToInt(a);
-        int n2 = BinToInt(b);
 
-        return IntToBin(n2 + n1);
-    }
 
-    private string IntToBin(int val)
-    {
-        if (0 == val)
-            return "0";
-        Dictionary<int, string> hex2bin = new()
+        (char carryOut, char result) BitAdd(char x, char y, char carryIn)
         {
-            {0x0,"0000"},
-            {0x1,"0001"},
-            {0x2,"0010"},
-            {0x3,"0011"},
-            {0x4,"0100"},
-            {0x5,"0101"},
-            {0x6,"0110"},
-            {0x7,"0111"},
-            {0x8,"1000"},
-            {0x9,"1001"},
-            {0xa,"1010"},
-            {0xb,"1011"},
-            {0xc,"1100"},
-            {0xd,"1101"},
-            {0xe,"1110"},
-            {0xf,"1111"}
-        };
+            return (carryIn, x, y) switch
+            {
+                ('0', '0', '0') => ('0', '0'),
+                ('0', '0', '1') => ('0', '1'),
+                ('0', '1', '0') => ('0', '1'),
+                ('0', '1', '1') => ('1', '0'),
+                ('1', '0', '0') => ('0', '1'),
+                ('1', '0', '1') => ('1', '0'),
+                ('1', '1', '0') => ('1', '0'),
+                ('1', '1', '1') => ('1', '1'),
 
-        var l = new List<string>();
-        while (val > 0)
-        {
-            var n = val & 0xf;
-            l.Add(hex2bin[n]);
-            val >>= 4;
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
-        var sb = new StringBuilder();
-        for (int i = 0; i < l.Count; ++i)
-            sb.Append(l[^(i + 1)]);
+        var spanA = a.AsSpan();
+        var spanB = b.AsSpan();
 
-        return sb.ToString().TrimStart('0');
-    }
+        int maxLen = Math.Max(spanA.Length, spanB.Length);
 
-    private int BinToInt(string s)
-    {
+        char[] arrA = new char[maxLen];
+        char[] arrB = new char[maxLen];
 
-        Dictionary<string, int> bin2hex = new()
-         {
-             {"0000",0x0},
-             {"0001",0x1},
-             {"0010",0x2},
-             {"0011",0x3},
-             {"0100",0x4},
-             {"0101",0x5},
-             {"0110",0x6},
-             {"0111",0x7},
-             {"1000",0x8},
-             {"1001",0x9},
-             {"1010",0xa},
-             {"1011",0xb},
-             {"1100",0xc},
-             {"1101",0xd},
-             {"1110",0xe},
-             {"1111",0xf}
-         };
+        Array.Fill(arrA, '0');
+        Array.Fill(arrB, '0');
 
+        spanA.CopyTo(arrA.AsSpan(arrA.Length - spanA.Length));
+        spanB.CopyTo(arrB.AsSpan(arrB.Length - spanB.Length));
 
-        var span = s.AsSpan();
+        List<char> res = new(maxLen + 1);
+        char carryIn = '0';
 
-        int alingLen = ((span.Length + 3) >> 2) << 2;
-        char[] align = new char[alingLen];
-        Array.Fill(align, '0');
-        span.CopyTo(align.AsSpan(alingLen - span.Length));
-
-        int res = 0;
-        int numHexDigits = alingLen >> 2;
-        for (int i = 0; i < numHexDigits; ++i)
+        for (int i = 0; i < arrA.Length; ++i)
         {
-            int offset = i << 2;
-            var spanDig = align.AsSpan(offset, 4);
-            int d = bin2hex[new string(spanDig)];
-            res |= (d << ((numHexDigits - 1 - i) << 2));
+            var x = arrA[^(i + 1)];
+            var y = arrB[^(i + 1)];
 
+            var t = BitAdd(x, y, carryIn);
+            carryIn = t.carryOut;
+            res.Add(t.result);
         }
-        return res;
+
+        res.Add(carryIn);
+
+        bool oneFound = false;
+        var sb = new StringBuilder(res.Count);
+        for (int i = 0; i < res.Count; ++i)
+        {
+            var dig = res[^(i + 1)];
+            if (dig == '1')
+                oneFound = true;
+
+            if (oneFound || i == res.Count - 1)
+                sb.Append(dig);
+        }
+        return sb.ToString();
     }
+
 }
