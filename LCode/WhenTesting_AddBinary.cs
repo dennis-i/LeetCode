@@ -2,7 +2,6 @@ using System.Text;
 
 namespace LCode;
 
-
 public class WhenTesting_AddBinary
 {
 
@@ -23,7 +22,6 @@ public class WhenTesting_AddBinary
 
     public string AddBinary(string a, string b)
     {
-
 
         (char carryOut, char result) BitAdd(char x, char y, char carryIn)
         {
