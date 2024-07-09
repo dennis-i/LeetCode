@@ -91,8 +91,6 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
             {
                 var str = Combine(head, excl, false);
                 hash.Add(str);
-                str = Combine(head, excl, true);
-                hash.Add(str);
                 excl = RotateLeftOne(excl);
             }
         }
