@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Specialized;
+
 namespace LCode;
 
 public class WhenTesting_LetterCasePermutation
@@ -21,50 +24,39 @@ public class WhenTesting_LetterCasePermutation
     public IList<string> LetterCasePermutation(string s)
     {
 
-        char invertCase(char ch) => char.IsUpper(ch) ? char.ToLower(ch) : char.ToUpper(ch);
-
+        char SetCase(char ch, bool upper) => upper ? char.ToUpper(ch) : char.ToLower(ch);
 
         var span = s.AsSpan();
-        List<int> strIdxs = new(span.Length);
 
+        var bitMapper = new Dictionary<int, int>();
+        int cnt = 0;
         for (int i = 0; i < span.Length; ++i)
         {
             if (char.IsLetter(span[i]))
-                strIdxs.Add(i);
+                bitMapper[cnt++] = i;
         }
-
-        if (strIdxs.Count == 0)
+        if (bitMapper.Count == 0)
             return [s];
 
-
-        var result = new HashSet<string>();
-
-
-        char[] arr = new char[span.Length];
-
-        for (int i = 0; i < strIdxs.Count; ++i)
+        var result = new List<string>();
+        int numPerm = (int)Math.Pow(2, bitMapper.Count);
+        for (int i = 0; i < numPerm; ++i)
         {
-            span.CopyTo(arr);
-            result.Add(new string(arr));
-            int strIdx1 = strIdxs[i];
-            arr[strIdx1] = invertCase(arr[strIdx1]);
-            result.Add(new string(arr));
 
-            for (int j = i; j < strIdxs.Count; ++j)
+            char[] arr = new char[span.Length];
+            span.CopyTo(arr);
+            foreach (var element in bitMapper)
             {
-               
-                int strIdx2 = strIdxs[j];
-                span.CopyTo(arr);
-                arr[strIdx1] = invertCase(arr[strIdx1]);
-                result.Add(new string(arr));
-                span.CopyTo(arr);
-                arr[strIdx2] = invertCase(arr[strIdx2]);
-                result.Add(new string(arr));
-              
+                int bitIdx = element.Key;
+                int chIdx = element.Value;
+
+                bool isUpper = (i & (1 << bitIdx)) > 0;
+                arr[chIdx] = SetCase(arr[chIdx], isUpper);
             }
 
+            result.Add(new string(arr));
         }
 
-        return result.ToList();
+        return result;
     }
 }
