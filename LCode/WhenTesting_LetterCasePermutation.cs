@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Specialized;
-
 namespace LCode;
 
 public class WhenTesting_LetterCasePermutation
