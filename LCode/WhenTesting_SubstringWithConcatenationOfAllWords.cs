@@ -8,12 +8,13 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
 
     [Theory]
     [InlineData(new[] { 0, 9 }, "barfoothefoobarman", new[] { "foo", "bar" })]
-    [InlineData(new[] { 0, 9 }, "foobarfoobar", new[] { "foo", "bar" })]
+    [InlineData(new[] { 0, 3, 6 }, "foobarfoobar", new[] { "foo", "bar" })]
     [InlineData(new int[0], "wordgoodgoodgoodbestword", new[] { "word", "good", "best", "word" })]
     [InlineData(new int[] { 6, 9, 12 }, "barfoofoobarthefoobarman", new[] { "bar", "foo", "the" })]
     [InlineData(new int[] { 8 }, "wordgoodgoodgoodbestword", new[] { "word", "good", "best", "good" })]
     [InlineData(new int[] { 13 }, "lingmindraboofooowingdingbarrwingmonkeypoundcake", new[] { "fooo", "barr", "wing", "ding", "wing" })]
     [InlineData(new int[] { 1, 3 }, "abaababbaba", new[] { "ab", "ba", "ab", "ba" })]
+    [InlineData(new int[] { 1, 3 }, "abaababbaba", new[] { "dhvf", "sind", "ffsl", "yekr", "zwzq", "kpeo", "cila", "tfty", "modg", "ztjg", "ybty", "heqg", "cpwo", "gdcj", "lnle", "sefg", "vimw", "bxcb" })]
     public void TestIt(int[] expected, string s, string[] words)
     {
         var res = FindSubstring(s, words);
@@ -134,7 +135,7 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
             else if (res != -1)
             {
                 cnt++;
-                tmps = s.Slice(singleWordLen * cnt);
+                tmps = s.Slice(/*singleWordLen **/ cnt);
                 res = -1;
                 tmpptrn = pattern;
                 idx = s.Length - tmps.Length;
@@ -155,7 +156,9 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
 
         foreach (var permutation in permutations)
         {
+            
             var idx = FindMatch(s.ToCharArray(), permutation.ToCharArray(), words[0].Length);
+
             while (idx != -1)
             {
                 res.Add(idx);
