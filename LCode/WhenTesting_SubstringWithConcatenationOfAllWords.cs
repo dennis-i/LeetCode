@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace LCode;
@@ -7,10 +8,12 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
 
     [Theory]
     [InlineData(new[] { 0, 9 }, "barfoothefoobarman", new[] { "foo", "bar" })]
+    [InlineData(new[] { 0, 9 }, "foobarfoobar", new[] { "foo", "bar" })]
     [InlineData(new int[0], "wordgoodgoodgoodbestword", new[] { "word", "good", "best", "word" })]
     [InlineData(new int[] { 6, 9, 12 }, "barfoofoobarthefoobarman", new[] { "bar", "foo", "the" })]
     [InlineData(new int[] { 8 }, "wordgoodgoodgoodbestword", new[] { "word", "good", "best", "good" })]
     [InlineData(new int[] { 13 }, "lingmindraboofooowingdingbarrwingmonkeypoundcake", new[] { "fooo", "barr", "wing", "ding", "wing" })]
+    [InlineData(new int[] { 1, 3 }, "abaababbaba", new[] { "ab", "ba", "ab", "ba" })]
     public void TestIt(int[] expected, string s, string[] words)
     {
         var res = FindSubstring(s, words);
@@ -21,104 +24,87 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
     }
 
 
+
     [Theory]
-    [InlineData(new[] { "foobar", "barfoo" }, new[] { "foo", "bar" })]
-    [InlineData(new[] { "abcdef", "abefcd", "cdabef", "cdefab", "efabcd", "efcdab" }, new[] { "ab", "cd", "ef" })]
-    public void TestConcats(string[] expected, string[] words)
+    [InlineData(new[] { "12", "21" }, new[] { 1, 2 })]
+    [InlineData(new[] { "12", "21" }, new[] { 1, 2, 3 })]
+    [InlineData(new[] { "12", "21" }, new[] { 1, 2, 3, 4 })]
+    [InlineData(new[] { "12", "21" }, new[] { 1, 2, 3, 4, 5 })]
+    public void FindPermutations(string[] expected, int[] nums)
     {
-        Assert.Equal(expected, ConcantinatedWords(words));
+
+
+        int Factotrial(int n)
+        {
+            int sum = 1;
+            for (int i = 1; i <= n; ++i)
+                sum *= i;
+            return sum;
+        }
+
+        int f = Factotrial(nums.Length);
+        var tbl = FindPerm(nums);
+        Assert.Equal(f, tbl.Count);
+
+        var sb = new StringBuilder();
+        foreach (var row in tbl)
+        {
+            foreach (var r in row)
+            {
+                sb.AppendFormat("{0} ", r);
+            }
+
+            sb.AppendLine();
+        }
+
+        string dump = sb.ToString();
     }
 
 
-    [Theory]
 
-    [InlineData("fooowingdingbarrwing", new[] { "fooo", "barr", "wing", "ding", "wing" })]
-    public void AfterConcatContains(string expected, string[] words)
+    private List<List<int>> FindPerm(int[] nums)
     {
-        Assert.Contains(expected, ConcantinatedWords(words));
+        List<List<int>> result = new();
+        BackTrack(result, nums, 0, nums.Length);
+        return result;
     }
-
-
-
-    [Theory]
-    [InlineData(new[] { "a" }, new[] { "a", "b" }, 1)]
-    [InlineData(new[] { "a", "b", "d" }, new[] { "a", "b", "c", "d" }, 2)]
-
-    public void TestRemoveIdx(string[] expected, string[] words, int idx)
+    private void BackTrack(List<List<int>> result, int[] array, int start, int end)
     {
-        Assert.Equal(expected, ExcludeIndex(words, idx).ToArray());
+        if (start == end)
+        {
+            result.Add([.. array]);
+        }
+        else
+        {
+            for (int i = start; i < end; i++)
+            {
+                (array[start], array[i]) = (array[i], array[start]);
+                BackTrack(result, array, start + 1, end);
+                (array[start], array[i]) = (array[i], array[start]);
+            }
+        }
+
     }
-
-
-    [Theory]
-    [InlineData(new[] { "b", "a" }, new[] { "a", "b" })]
-    [InlineData(new[] { "b", "c", "d", "a" }, new[] { "a", "b", "c", "d" })]
-
-    public void TestRotateOne(string[] expected, string[] words)
-    {
-        Assert.Equal(expected, RotateLeftOne(words).ToArray());
-    }
-
 
     private IReadOnlyList<string> ConcantinatedWords(string[] words)
     {
-
-        string Combine(string s, ReadOnlySpan<string> toAdd, bool reverce = false)
-        {
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append(s);
-
-            for (int i = 0; i < toAdd.Length; ++i)
-            {
-                if (reverce)
-                    sb.Append(toAdd[^(i + 1)]);
-                else
-                    sb.Append(toAdd[i]);
-            }
-            return sb.ToString();
-        }
-
         var hash = new HashSet<string>();
+        int[] idxs = new int[words.Length];
+        for (int i = 0; i < idxs.Length; ++i)
+            idxs[i] = i;
 
-        for (int i = 0; i < words.Length; ++i)
+        var permIdx = FindPerm(idxs);
+        foreach (var item in permIdx)
         {
-            string head = words[i];
-
-            var excl = ExcludeIndex(words, i);
-            for (int j = 0; j < excl.Length; ++j)
+            var sb = new StringBuilder();
+            foreach (var idx in item)
             {
-                var str = Combine(head, excl, false);
-                hash.Add(str);
-                excl = RotateLeftOne(excl);
+                sb.Append(words[idx]);
             }
+            hash.Add(sb.ToString());
         }
-
-
-
         return hash.ToArray();
     }
-
-
-    private ReadOnlySpan<string> RotateLeftOne(ReadOnlySpan<string> src)
-    {
-        string[] res = new string[src.Length];
-        string tmp = src[0];
-        src.Slice(1).CopyTo(res);
-        res[^1] = tmp;
-        return res;
-    }
-
-    private ReadOnlySpan<string> ExcludeIndex(ReadOnlySpan<string> src, int index)
-    {
-        var res = new string[src.Length - 1];
-        src.Slice(0, index).CopyTo(res);
-        src.Slice(index + 1).CopyTo(res.AsSpan(index));
-        return res;
-
-    }
-
 
     private int FindMatch(Span<char> s, Span<char> pattern, int singleWordLen, int fromIdx = 0)
     {
@@ -159,7 +145,7 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
             idx++;
         }
 
-        return tmpptrn.IsEmpty ? res : -1;
+        return tmpptrn.IsEmpty ? res + fromIdx : -1;
     }
 
     public IList<int> FindSubstring(string s, string[] words)
