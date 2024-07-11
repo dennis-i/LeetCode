@@ -10,6 +10,15 @@ public class WhenTesting_RegularExpressionMatching
     [InlineData(true, "abbbz", ".*")]
     [InlineData(false, "abcd", "ab*")]
     [InlineData(true, "aab", "c*a*b")]
+    [InlineData(true, "a", "b*a")]
+    [InlineData(true, "a", "a")]
+    [InlineData(false, "b", "a")]
+    [InlineData(true, "a", ".")]
+    [InlineData(false, "ab", ".*c")]
+    [InlineData(true, "aaa", "ab*a*c*a")]
+    [InlineData(false, "aaa", "aaaa")]
+    [InlineData(false, "aaba", "ab*a*c*a")]
+    [InlineData(true, "aaca", "ab*a*c*a")]
     public void TestIt(bool expected, string s, string p)
     {
         Assert.Equal(expected, IsMatch(s, p));
@@ -17,45 +26,120 @@ public class WhenTesting_RegularExpressionMatching
 
     public bool IsMatch(string s, string p)
     {
-        var span = s.AsSpan();
-        var pspan = p.AsSpan();
-        var l = new List<char>();
-        int j = 0;
-        bool wildStarted = false;
-        for (int i = 0; i < span.Length; ++i)
+        var patternSpan = p.AsSpan();
+        var strSpan = s.AsSpan();
+
+
+
+        bool match = false;
+        char previous = '\0';
+
+
+        var canReduce = new Dictionary<char, int>();
+
+
+        while (!strSpan.IsEmpty)
         {
-            if (j == pspan.Length)
+
+
+
+            var sch = strSpan[0];
+            var pch = patternSpan[0];
+
+
+            if (!canReduce.ContainsKey(sch))
+                canReduce.Add(sch, 0);
+
+            if (pch == '*')
+            {
+                if (previous != '\0' && previous != '.')
+                    canReduce[previous]++;
+                pch = previous;
+            }
+
+            if (pch == '.')
+                pch = sch;
+
+
+            if (pch == sch)
+            {
+                match = true;
+                strSpan = strSpan.Slice(1);
+
+                if (!(patternSpan.Length == 1 && patternSpan[0] == '*'))
+                    if (!patternSpan.IsEmpty)
+                    {
+                        previous = patternSpan[0];
+                        patternSpan = patternSpan.Slice(1);
+                    }
+
+            }
+            else if (patternSpan.Length > 1 && patternSpan[0] == '*' && patternSpan[1] == sch)
+            {
+                match = true;
+                strSpan = strSpan.Slice(1);
+                canReduce[previous]--;
+            }
+
+            else if (patternSpan.Length > 1 && patternSpan[1] == '*')
+            {
+                previous = '\0';
+                patternSpan = patternSpan.Slice(2);
+            }
+            else
+            {
+                strSpan = strSpan.Slice(1);
+                previous = patternSpan[0];
+                if (!patternSpan.IsEmpty)
+                    patternSpan = patternSpan.Slice(1);
+
+                return false;
+            }
+
+
+            if (patternSpan.IsEmpty && !strSpan.IsEmpty)
                 return false;
 
-            var ch = span[i];
-            var pch = pspan[j];
-
-            if (wildStarted)
+            while (strSpan.IsEmpty && patternSpan.Length > 1 && patternSpan[1] == '*')
             {
-                l.Add(l[^1]);
-            }
-            else if (ch == pch )
-            {
-                l.Add(ch);
-                j++;
+                patternSpan = patternSpan.Slice(2);
             }
 
-            else if (pch == '.')
+            while (strSpan.IsEmpty && !patternSpan.IsEmpty)
             {
-                l.Add(ch);
-                j++;
-            }
-               
+                char k = patternSpan[0];
+                if (k == '*')
+                {
+                    patternSpan = patternSpan.Slice(1);
+                    continue;
+                }
+                if (!canReduce.TryGetValue(k, out var n))
+                    return false;
 
-            else if (pch == '*')
-            {
-                wildStarted=true;
-            }
-                
+                bool ok = n > 0;
+                while (n > 0 && ok)
+                {
+                    if (patternSpan.IsEmpty)
+                        return ok;
 
-           
+                    ok = patternSpan[0] == k;
+                    patternSpan = patternSpan.Slice(1);
+
+                    --n;
+                }
+                return ok;
+
+
+            }
+
+            if (strSpan.IsEmpty && !patternSpan.IsEmpty)
+                return false;
+
         }
-        return true;
+
+
+
+        return match;
     }
 
 }
