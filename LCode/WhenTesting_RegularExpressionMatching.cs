@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace LCode;
 
 //TODO
@@ -5,6 +7,9 @@ public class WhenTesting_RegularExpressionMatching
 {
     [Theory]
     [InlineData(false, "aa", "a")]
+    [InlineData(false, "aa", "aaa")]
+    [InlineData(true, "abc", "abc")]
+    [InlineData(true, "abc", ".bc")]
     [InlineData(true, "aa", "a*")]
     [InlineData(true, "ab", ".*")]
     [InlineData(true, "abbbz", ".*")]
@@ -23,6 +28,8 @@ public class WhenTesting_RegularExpressionMatching
     {
         Assert.Equal(expected, IsMatch(s, p));
     }
+
+
 
     public bool IsMatch(string s, string p)
     {
