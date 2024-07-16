@@ -19,34 +19,30 @@ public class WhenTesting_LengthOfLongestSubstring
     public int LengthOfLongestSubstring(string s)
     {
 
+        var hash = new HashSet<char>();
         var span = s.AsSpan();
 
-        int index = 0;
-        int longest = 0;
+        int idx1 = 0;
+        int idx2 = 0;
 
-
-        while (index < span.Length - 1)
+        int max = 0;
+        while (idx1 < span.Length && idx2 < span.Length)
         {
-            var curr = span[index++];
-            int idx2 = index;
-
-            while (idx2 < span.Length)
+            if (!hash.Contains(span[idx1]))
             {
-
-                var next = span[idx2++];
-
-                int charCnt = idx2 - index;
-
-                if (curr == next)
-                {
-                    if (longest < charCnt)
-                        longest = charCnt;
-                    break;
-                }
+                hash.Add(span[idx1]);
+                ++idx1;
             }
+            else
+            {
+                hash.Remove(span[idx2]);
+                ++idx2;
+            }
+
+            max = Math.Max(hash.Count, max);
         }
 
-        return longest == 0 ? span.Length : longest;
+        return max;
     }
 
 

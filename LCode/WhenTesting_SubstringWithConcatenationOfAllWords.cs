@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 namespace LCode;
 
 public class WhenTesting_SubstringWithConcatenationOfAllWords
@@ -53,7 +51,7 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
 
 
 
-    private int FindSubstringInternal(string s, Dictionary<string, int> testMap, int wordLen, int startIdx)
+    private int FindSubstringInternal(in string s, in Dictionary<string, int> testMap, in int wordLen, in int startIdx)
     {
 
         var map = new Dictionary<string, int>(testMap);
@@ -64,9 +62,10 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
         var span = s.AsSpan(startIdx);
         var span2 = s.AsSpan(startIdx);
 
+
         while (span2.Length >= wordLen)
         {
-            
+
             var key = new string(span2.Slice(0, wordLen));
             if (map.ContainsKey(key) && map[key] > 0)
             {
@@ -80,6 +79,7 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
                 span2 = span2.Slice(wordLen);
 
                 map[key]--;
+
                 if (IsMatchFound())
                     break;
             }
@@ -100,6 +100,7 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
         }
 
         return IsMatchFound() ? result : -1;
+
 
         bool IsMatchFound()
         {
@@ -131,12 +132,13 @@ public class WhenTesting_SubstringWithConcatenationOfAllWords
 
         var testMap = CreateMap();
 
-        var res = new List<int>();
+        var res = new List<int>(s.Length);
 
         int wordLen = words[0].Length;
 
 
         int idx = FindSubstringInternal(s, testMap, wordLen, 0);
+
         while (idx != -1)
         {
             res.Add(idx);
