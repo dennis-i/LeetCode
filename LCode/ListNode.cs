@@ -34,8 +34,12 @@ public class ListNode
         }
     }
 
-    private static void Generate(ListNode root, List<int> list)
+    public static void Generate(ListNode root, List<int> list)
     {
+        if (root == null)
+            return;
+
+
         list.Add(root.val);
         if (root.next != null)
         {
@@ -46,10 +50,20 @@ public class ListNode
 
 
 
-    public IReadOnlyList<int> ToArray()
+    //public IReadOnlyList<int> ToArray()
+    //{
+    //    var l = new List<int>();
+    //    Generate(this, l);
+    //    return l;
+    //}
+}
+
+public static class Extensions
+{
+    public static IReadOnlyList<int> ToArray(this ListNode node)
     {
         var l = new List<int>();
-        Generate(this, l);
+        ListNode.Generate(node, l);
         return l;
     }
 }
