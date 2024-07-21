@@ -18,59 +18,34 @@ public class WhenTesting_RemoveDuplicatesFromSortedArray
     }
 
 
-    [Theory]
-    [InlineData(new[] { 1, 0 }, new[] { 0, 1 }, 0)]
-    [InlineData(new[] { 0, 1, 2, 3, 4, 5 }, new[] { 0, 5, 1, 2, 3, 4 }, 1)]
-    public void TestMoveToEnd(int[] expected, int[] nums, int fromIdx)
-    {
-        //MovedBehindBigger(fromIdx, nums);
-        Assert.Equal(expected, nums);
-    }
-
-
     public int RemoveDuplicates(int[] nums)
     {
         if (nums.Length == 1) return 1;
 
-        int max = int.MinValue;
 
-        for (int i = 1; i < nums.Length; ++i)
+        int idx1 = 0;
+        int idx2 = 1;
+
+        while (idx2 < nums.Length)
         {
-            int n1 = nums[i - 1];
-            int n2 = nums[i];
+            if (nums[idx1] == nums[^1])
+                break;
 
-            if (n2 > max)
-                max = n2;
-
-            if (n1 >= n2)
+            if (nums[idx1] == nums[idx2])
             {
-                if (!MovedBehindBigger(i, nums))
-                    break;
-                --i;
+                for (int i = idx2 + 1; i < nums.Length; ++i)
+                {
+                    nums[i - 1] = nums[i];
+                }
+            }
+            else
+            {
+                ++idx1;
+                ++idx2;
             }
         }
 
-        for (int i = 0; i < nums.Length; ++i)
-        {
-            if (nums[i] == max)
-                return i + 1;
-        }
-
-        return 0;
-    }
-
-    public bool MovedBehindBigger(int fromIndex, int[] array)
-    {
-        int idx = fromIndex;
-        while (idx + 1 < array.Length)
-        {
-            (array[idx + 1], array[idx]) = (array[idx], array[idx + 1]);
-            if (array[idx + 1] < array[idx])
-                return true;
-            ++idx;
-        }
-
-        return false;
+        return idx1 + 1;
     }
 
 }
