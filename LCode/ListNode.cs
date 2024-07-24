@@ -47,15 +47,6 @@ public class ListNode
         }
     }
 
-
-
-
-    //public IReadOnlyList<int> ToArray()
-    //{
-    //    var l = new List<int>();
-    //    Generate(this, l);
-    //    return l;
-    //}
 }
 
 public static class Extensions
