@@ -9,7 +9,7 @@ public class WhenTesting_Sort
     [InlineData(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100 }, new[] { 100, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 })]
     public void TestIt(int[] expected, int[] nums)
     {
-        Sort(nums);
+        Sort(nums, 0, nums.Length - 1);
         Assert.Equal(expected, nums);
     }
 
@@ -37,7 +37,7 @@ public class WhenTesting_Sort
         var sw = new Stopwatch();
         sw.Start();
         Array.Sort(nums2);
-       
+
         sw.Stop();
         Debug.WriteLine($"sort 2 took:{sw.Elapsed.TotalNanoseconds} ns");
         sw.Restart();
@@ -82,7 +82,36 @@ public class WhenTesting_Sort
     }
 
 
+    public static void Sort(int[] array, int low, int high)
+    {
+        if (low < high)
+        {
+            int pivotIndex = Partition(array, low, high);
+            Sort(array, low, pivotIndex - 1);
+            Sort(array, pivotIndex + 1, high);
+        }
+    }
 
+
+    private static int Partition(int[] array, int low, int high)
+    {
+
+        void Swap(Span<int> span, int idx1, int idx2) => (span[idx1], span[idx2]) = (span[idx2], span[idx1]);
+
+
+        int pivot = array[high];
+        int i = low - 1;
+        for (int j = low; j < high; j++)
+        {
+            if (array[j] < pivot)
+            { 
+                i++;
+                Swap(array, i, j);
+            }
+        }
+        Swap(array, i + 1, high);
+        return i + 1;
+    }
 
 
 }
