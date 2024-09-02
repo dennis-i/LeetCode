@@ -48,15 +48,16 @@ public class WhenTesting_CountNumberOfTeams
             if (res == 1)
                 Debug.WriteLine($"[{cnt++}]({nums[i]},{nums[j]},{nums[k]})");
 
-            res += n1;
-            res += n2;
-            res += n3;
+            int total = memo.Sum(x => x.Value);
+            Debug.WriteLine($"total={total}");
+           
+
 
             //res = Math.Max(Math.Max(n1, n2), n3) + res;
             memo.Add((i, j, k), res);
 
             return res;
         }
-        return Find(rating, 0,1, 2);
+        return Find(rating, 0, 1, 2);
     }
 }

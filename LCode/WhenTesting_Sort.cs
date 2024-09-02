@@ -3,6 +3,56 @@ using System.Diagnostics;
 
 namespace LCode;
 
+
+
+
+public class WhenFindingPrimes
+{
+    [Theory]
+    [InlineData(10)]
+    [InlineData(100000)]
+    [InlineData(int.MaxValue)]
+    public void TestIt(int n)
+    {
+        int numPrimes = NumPrimes(n);
+        Debug.WriteLine($"there are {numPrimes} primes in range of 0 to {n}");
+    }
+
+    private int NumPrimes(int n)
+    {
+        for (int i = 5; i < 100; i += 5)
+            Debug.WriteLine($"0x{i:X2}");
+
+       
+
+        static bool IsPrime(int candidate)
+        {
+
+
+            if (int.IsOddInteger(candidate) && candidate % 5 != 0)
+            {
+                int limit = (int)Math.Sqrt(candidate);
+
+
+                for (int divisor = 3; divisor <= limit; divisor += 2)
+                {
+                    if ((candidate % divisor) == 0)
+                        return false;
+                }
+                return true;
+            }
+            return candidate == 2 || candidate == 5;
+        }
+
+        List<int> l = [2, 3];
+        for (int i = 4; i <= n; ++i)
+            if (IsPrime(i))
+                l.Add(i);
+
+        return l.Count;
+    }
+}
+
 public class WhenTesting_Sort
 {
     [Theory]
@@ -104,7 +154,7 @@ public class WhenTesting_Sort
         for (int j = low; j < high; j++)
         {
             if (array[j] < pivot)
-            { 
+            {
                 i++;
                 Swap(array, i, j);
             }
