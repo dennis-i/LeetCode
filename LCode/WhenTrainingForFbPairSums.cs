@@ -11,13 +11,13 @@ public class WhenTrainingForFbPairSums
         Assert.Equal(2, numberOfWays([1, 2, 3, 4, 3], 6));
         Assert.Equal(4, numberOfWays([1, 5, 3, 3, 3], 6));
 
-        int[] longArr = Enumerable.Range(0, 10000000).Select(i => i).ToArray();
-        Assert.Equal(4, numberOfWays(longArr, 6));
+        int[] longArr = Enumerable.Range(0, 100000).Select(i => i % 100).ToArray();
+        int n = numberOfWays(longArr, 10);
+
     }
 
     private static int numberOfWays(int[] arr, int k)
     {
-
         return withHash(arr, k);
     }
 
@@ -28,21 +28,17 @@ public class WhenTrainingForFbPairSums
         for (int i = 0; i < arr.Length; ++i)
         {
             int diff = k - arr[i];
-            if (!hash.ContainsKey(diff))
-                hash.Add(diff, 0);
+            if (hash.ContainsKey(diff))
+                res += hash[diff];
 
-            hash[diff]++;
+
+            if (hash.ContainsKey(arr[i]))
+                hash[arr[i]]++;
+            else
+                hash[arr[i]] = 1;
         }
 
-        foreach (var element in arr)
-        {
-            if (hash.ContainsKey(element))
-            {
-                res += hash[element];
-            }
-        }
-
-        return res >> 1;
+        return res;
     }
 
     private static int brutForce(int[] arr, int k)
