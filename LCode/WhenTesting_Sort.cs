@@ -1,10 +1,149 @@
 ﻿
+using Raylib_CsLo;
 using System.Diagnostics;
+using System.Net.Mime;
+using System.Text;
 
 namespace LCode;
 
 
 
+
+public class WhenTestingHeap
+{
+    [Theory]
+    [InlineData(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100 }, new[] { 100, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 })]
+    public void TestIt(int[] expected, int[] nums)
+    {
+        var mh = new MinHeap();
+
+        foreach (var n in nums)
+        {
+            mh.Add(n);
+        }
+        string dump = mh.Dump();
+        RunRay(mh.Root);
+    }
+
+    private void RunRay(TreeNode root)
+    {
+        Raylib.InitWindow(1280, 720, "Hello, Raylib-CsLo");
+        Raylib.SetTargetFPS(60);
+
+
+        const int NodeRadius = 30;
+        const int Node2NodeDist = NodeRadius * 2;
+        const int FontSize = NodeRadius >> 1;
+
+        // Main game loop
+        while (!Raylib.WindowShouldClose()) // Detect window close button or ESC key
+        {
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Raylib.SKYBLUE);
+
+
+            void drawNode(int x, int y, TreeNode node)
+            {
+                if (node == null)
+                    return;
+                Raylib.DrawCircle(x, y, NodeRadius, Raylib.YELLOW);
+                Raylib.DrawText($"{node.val}", x - (FontSize >> 1), y - (FontSize >> 1), FontSize, Raylib.BLACK);
+            }
+
+            int x = Raylib.GetRenderWidth() >> 1;
+            int y = (int)Math.Round(NodeRadius * 1.5);
+
+            var q = new Queue<(int, TreeNode)>();
+            q.Enqueue((0, root));
+            while (q.Count > 0)
+            {
+                var cur = q.Dequeue();
+
+                int idx = cur.Item1;
+                TreeNode tn = cur.Item2;
+                if (tn != null)
+                {
+                    drawNode(x - Node2NodeDist * idx, y + Node2NodeDist * idx, tn);
+                    drawNode(x + Node2NodeDist * idx, y + Node2NodeDist * idx, tn);
+                    q.Enqueue((idx + 1, tn.left));
+                    q.Enqueue((idx + 1, tn.right));
+
+                }
+
+            }
+
+
+
+
+
+
+
+
+            Raylib.EndDrawing();
+        }
+        Raylib.CloseWindow();
+    }
+
+
+    class MinHeap
+    {
+        private TreeNode _root = null;
+        public TreeNode Root => _root;
+        public string Dump()
+        {
+            var sb = new StringBuilder();
+
+            var q = new Queue<TreeNode>();
+
+
+
+            if (_root != null)
+            {
+                sb.Append($"{_root.val}\n");
+                q.Enqueue(_root);
+            }
+
+            while (q.Count > 0)
+            {
+                var curr = q.Dequeue();
+                if (curr.left != null)
+                {
+                    sb.Append($"{curr.left.val} ");
+                    q.Enqueue(curr.left);
+                }
+                if (curr.right != null)
+                {
+                    sb.Append($"{curr.right.val} ");
+                    q.Enqueue(curr.right);
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+        public void Add(int val)
+        {
+            var node = new TreeNode(val);
+            Add(ref _root, node);
+
+        }
+
+        private void Add(ref TreeNode root, TreeNode newNode)
+        {
+
+            if (root == null)
+                root = newNode;
+            else
+            {
+                if (root.left != null && root.right == null)
+                    Add(ref root.right, newNode);
+                else
+                    Add(ref root.left, newNode);
+            }
+        }
+    }
+}
 
 public class WhenFindingPrimes
 {
@@ -23,7 +162,7 @@ public class WhenFindingPrimes
         for (int i = 5; i < 100; i += 5)
             Debug.WriteLine($"0x{i:X2}");
 
-       
+
 
         static bool IsPrime(int candidate)
         {
