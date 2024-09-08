@@ -2,8 +2,6 @@ using System.Diagnostics;
 
 namespace LCode;
 
-
-
 public class WhenTrainingForFbNodesInASubtree
 {
     [Fact]
